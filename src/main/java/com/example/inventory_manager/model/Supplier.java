@@ -27,9 +27,10 @@ public class Supplier {
     }
 
     public String getName() { return name; }
+    public String getContactEmail() { return contactEmail; }
+    public String getPhone() { return phone; }
 
-    @Override
-    public String toString() {
-        return name + " (" + contactEmail + ")";
+    public int getSupplierId() {
+        return supplierId;
     }
 }
