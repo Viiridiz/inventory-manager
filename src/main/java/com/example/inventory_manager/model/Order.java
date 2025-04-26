@@ -28,7 +28,7 @@ public class Order {
     public double calculateTotalPrice() {
         double total = 0;
         for (InventoryItem item : orderedItems) {
-            total += item.getProduct().getPrice() * item.getCurrentStock(); // assuming 1-to-1 mapping
+            total += item.getProduct().getPrice() * item.getCurrentStock();
         }
         return total;
     }
@@ -37,11 +37,27 @@ public class Order {
         this.status = "Completed";
     }
 
-    public String getStatus() { return status; }
+    public String getStatus() {
+        return status;
+    }
+
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public Supplier getSupplier() {
+        return supplier;
+    }
+
+    public Date getOrderDate() {
+        return orderDate;
+    }
+
+    // ===== END GETTERS =====
 
     @Override
     public String toString() {
         return "Order #" + orderId + " (" + status + ") - Items: " + orderedItems.size();
     }
 }
-
