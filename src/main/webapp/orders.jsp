@@ -1,5 +1,13 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<c:if test="${not empty sessionScope.flashMessage}">
+  <div style="background-color:#d4edda; color:#155724; padding:10px; border-radius:5px; margin-bottom:15px;">
+      ${sessionScope.flashMessage}
+  </div>
+  <c:remove var="flashMessage" scope="session"/>
+</c:if>
+
 
 <!DOCTYPE html>
 <html>
@@ -62,15 +70,23 @@
     button:hover {
       background: #218838;
     }
+    .small-btn {
+      background: #007bff;
+      margin-top: 0.5rem;
+      padding: 0.3rem 0.7rem;
+      font-size: 14px;
+    }
+    .small-btn:hover {
+      background: #0062cc;
+    }
   </style>
 </head>
 <body>
+
 <div style="background: #f8f9fa; padding: 1rem; margin-bottom: 2rem; border-radius: 8px;">
   <a href="${pageContext.request.contextPath}/inventory" style="margin-right: 1rem; text-decoration: none; font-weight: bold; color: #333;">📦 Inventory</a>
   <a href="${pageContext.request.contextPath}/order" style="margin-right: 1rem; text-decoration: none; font-weight: bold; color: #333;">🧾 Orders</a>
 </div>
-
-
 
 <h1>📦 Order Management</h1>
 
@@ -90,6 +106,7 @@
         <th>Products Ordered</th>
         <th>Status</th>
         <th>Order Date</th>
+        <th>Action</th>
       </tr>
       </thead>
       <tbody>
@@ -113,6 +130,15 @@
           </td>
           <td>${order.status}</td>
           <td>${order.orderDate}</td>
+          <td>
+            <c:if test="${order.status == 'Pending'}">
+              <form action="${pageContext.request.contextPath}/order" method="post">
+                <input type="hidden" name="action" value="completeOrder">
+                <input type="hidden" name="orderId" value="${order.orderId}">
+                <button type="submit" class="small-btn">Mark Completed ✅</button>
+              </form>
+            </c:if>
+          </td>
         </tr>
       </c:forEach>
       </tbody>
@@ -169,8 +195,13 @@
     </div>
 
     <div class="form-group">
-      <label for="productSku">Enter Product SKU:</label>
-      <input type="text" id="productSku" name="productSku" required>
+      <label for="productSku">Select Product SKU:</label>
+      <select id="productSku" name="productSku" required>
+        <option value="">-- Select Product --</option>
+        <c:forEach var="product" items="${products}">
+          <option value="${product.sku}">${product.sku} - ${product.name}</option>
+        </c:forEach>
+      </select>
     </div>
 
     <div class="form-group">

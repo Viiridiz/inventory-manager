@@ -38,34 +38,39 @@ public class OrderServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Load all orders
         List<Order> orders = orderDAO.findAll();
         request.setAttribute("orders", orders);
 
-        // Load all suppliers
         List<Supplier> suppliers = supplierDAO.findAll();
         request.setAttribute("suppliers", suppliers);
 
-        // Load all products ✅ (missing before)
         List<Product> products = productDAO.findAll();
         request.setAttribute("products", products);
 
-        // Forward to JSP
         request.getRequestDispatcher("/orders.jsp").forward(request, response);
     }
-
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        String action = request.getParameter("action");
+
+        if ("completeOrder".equals(action)) {
+            completeOrder(request, response);
+        } else {
+            placeOrder(request, response);
+        }
+    }
+
+    private void placeOrder(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
         try {
-            // Get form data
             int supplierId = Integer.parseInt(request.getParameter("supplierId"));
             String productSku = request.getParameter("productSku");
             int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-            // Fetch Supplier
             Supplier supplier = supplierDAO.findAll().stream()
                     .filter(s -> s.getSupplierId() == supplierId)
                     .findFirst()
@@ -75,26 +80,22 @@ public class OrderServlet extends HttpServlet {
                 throw new IllegalArgumentException("Supplier not found");
             }
 
-            // Fetch Product
             Product product = productDAO.findBySku(productSku);
 
             if (product == null) {
                 throw new IllegalArgumentException("Product not found");
             }
 
-            // Create InventoryItem (local only for order)
             InventoryItem item = new InventoryItem(product, quantity, "Ordering");
 
-            // Create Order
             Order order = new Order(0, supplier);
             order.addItem(item);
 
-            // Save order
             orderDAO.save(order);
 
-            System.out.println("✅ Order placed successfully!");
+            request.getSession().setAttribute("flashMessage", "✅ New order placed successfully!");
 
-            // Redirect back to order page
+
             response.sendRedirect(request.getContextPath() + "/order");
 
         } catch (Exception e) {
@@ -102,4 +103,42 @@ public class OrderServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/order");
         }
     }
+
+    private void completeOrder(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        try {
+            int orderId = Integer.parseInt(request.getParameter("orderId"));
+
+            Order order = orderDAO.findById(orderId);
+
+            if (order != null && "Pending".equals(order.getStatus())) {
+                order.markAsCompleted();
+                orderDAO.update(order);
+
+                for (InventoryItem item : order.getOrderedItems()) {
+                    InventoryItem existingItem = inventoryItemDAO.findByProductId(item.getProduct().getId());
+                    if (existingItem != null) {
+                        existingItem.updateStock(item.getCurrentStock());
+                        inventoryItemDAO.save(existingItem);
+                    } else {
+                        inventoryItemDAO.save(new InventoryItem(
+                                item.getProduct(),
+                                item.getCurrentStock(),
+                                "Default Location"
+                        ));
+                    }
+                }
+
+                request.getSession().setAttribute("flashMessage", "✅ Order #" + order.getOrderId() + " marked as completed!");
+            }
+
+            response.sendRedirect(request.getContextPath() + "/order");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/order");
+        }
+    }
+
 }

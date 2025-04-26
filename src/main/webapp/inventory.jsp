@@ -2,10 +2,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:if test="${not empty sessionScope.flashMessage}">
-  <div style="background-color:#d4edda; color:#155724; padding:10px; border-radius:5px; margin-bottom:15px;">
+  <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 16px; font-weight: bold;">
       ${sessionScope.flashMessage}
   </div>
-  <c:remove var="flashMessage" scope="session"/>
+  <c:remove var="flashMessage" scope="session" />
 </c:if>
 
 
@@ -87,6 +87,32 @@
       border-radius: 4px;
       margin: 1rem 0;
     }
+
+    button.delete-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button.delete-btn:hover {
+      background: #c82333;
+    }
+
+    .card form button {
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      vertical-align: middle;
+    }
+
+
   </style>
 </head>
 <body>
@@ -270,8 +296,13 @@
       <input type="hidden" name="action" value="updateStock">
 
       <div class="form-group">
-        <label for="productSkuStock">Product SKU:</label>
-        <input type="text" id="productSkuStock" name="productSku" required>
+        <label for="productSkuStock">Select Product SKU:</label>
+        <select id="productSkuStock" name="productSku" required>
+          <option value="">-- Select Product --</option>
+          <c:forEach var="product" items="${products}">
+            <option value="${product.sku}">${product.sku} - ${product.name}</option>
+          </c:forEach>
+        </select>
       </div>
 
       <div class="form-group">
@@ -282,6 +313,7 @@
       <button type="submit">Update Stock</button>
     </form>
   </div>
+
 </div>
 
 <c:if test="${not empty sessionScope.inventoryReport}">

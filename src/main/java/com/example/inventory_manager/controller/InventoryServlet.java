@@ -85,23 +85,28 @@ public class InventoryServlet extends HttpServlet {
 
         if ("addProduct".equals(action)) {
             addProduct(request);
+            request.getSession().setAttribute("flashMessage", "✅ New product added successfully!");
         } else if ("addSupplier".equals(action)) {
             addSupplier(request);
+            request.getSession().setAttribute("flashMessage", "✅ New supplier added successfully!");
         } else if ("updateStock".equals(action)) {
             updateStock(request);
+            request.getSession().setAttribute("flashMessage", "✅ Stock updated successfully!");
         } else if ("deleteProduct".equals(action)) {
             deleteProduct(request);
-        }
-        else if ("deleteSupplier".equals(action)) {
+            request.getSession().setAttribute("flashMessage", "🗑️ Product deleted successfully!");
+        } else if ("deleteSupplier".equals(action)) {
             deleteSupplier(request);
-        }
-        else if ("generateReport".equals(action)) {
+            request.getSession().setAttribute("flashMessage", "🗑️ Supplier deleted successfully!");
+        } else if ("generateReport".equals(action)) {
             generateReport(request, response);
-            return; // Important to STOP after generating report
+            request.getSession().setAttribute("flashMessage", "📄 Inventory report generated!");
+            return;
         }
 
         response.sendRedirect(request.getContextPath() + "/inventory");
     }
+
 
     private void generateReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<InventoryItem> inventoryItems = inventoryItemDAO.findAll();
