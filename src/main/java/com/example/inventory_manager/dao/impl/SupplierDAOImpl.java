@@ -34,6 +34,22 @@ public class SupplierDAOImpl implements SupplierDAO {
         }
     }
 
+    public boolean deleteById(int supplierId) {
+        Connection conn = null;
+        try {
+            conn = DbUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM suppliers WHERE supplier_id = ?");
+            stmt.setInt(1, supplierId);
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting supplier: " + e.getMessage());
+            return false;
+        } finally {
+            DbUtil.closeQuietly(conn);
+        }
+    }
+
     @Override
     public List<Supplier> findAll() {
         List<Supplier> suppliers = new ArrayList<>();

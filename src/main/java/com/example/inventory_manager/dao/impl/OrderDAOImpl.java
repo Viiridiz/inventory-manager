@@ -4,6 +4,8 @@ import com.example.inventory_manager.dao.OrderDAO;
 import com.example.inventory_manager.db.DbUtil;
 import com.example.inventory_manager.model.Order;
 import com.example.inventory_manager.model.Supplier;
+import com.example.inventory_manager.model.InventoryItem;
+import com.example.inventory_manager.model.Product;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -42,6 +44,41 @@ public class OrderDAOImpl implements OrderDAO {
         }
     }
 
+    private List<InventoryItem> loadOrderedItemsForOrder(int orderId) {
+        List<InventoryItem> items = new ArrayList<>();
+        Connection conn = null;
+        try {
+            conn = DbUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(
+                    "SELECT p.*, oi.quantity FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?"
+            );
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int productId = rs.getInt("id");
+                String name = rs.getString("name");
+                String sku = rs.getString("sku");
+                String category = rs.getString("category");
+                double price = rs.getDouble("price");
+                String description = rs.getString("description");
+                int quantity = rs.getInt("quantity");
+
+                Product product = new Product(productId, name, sku, category, price, description);
+                InventoryItem item = new InventoryItem(product, quantity, "Ordering");
+
+                items.add(item);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error loading ordered items: " + e.getMessage());
+        } finally {
+            DbUtil.closeQuietly(conn);
+        }
+        return items;
+    }
+
+
     @Override
     public List<Order> findAll() {
         List<Order> orders = new ArrayList<>();
@@ -52,24 +89,34 @@ public class OrderDAOImpl implements OrderDAO {
             ResultSet rs = stmt.executeQuery("SELECT * FROM orders");
 
             while (rs.next()) {
-                int orderId = rs.getInt("order_id");
+                int id = rs.getInt("order_id");
                 int supplierId = rs.getInt("supplier_id");
+                Date date = rs.getDate("order_date");
                 String status = rs.getString("status");
 
-                Supplier dummySupplier = new Supplier(supplierId, "", "", "");
-                Order order = new Order(orderId, dummySupplier);
-                if ("Completed".equalsIgnoreCase(status)) {
-                    order.markAsCompleted();
+                Supplier supplier = new SupplierDAOImpl().findById(supplierId);
+
+                Order order = new Order(id, supplier);
+                order.setOrderDate(date);
+                order.setStatus(status);
+
+                // NEW: Load ordered items for this order
+                List<InventoryItem> items = loadOrderedItemsForOrder(id);
+                for (InventoryItem item : items) {
+                    order.addItem(item);
                 }
+
                 orders.add(order);
             }
+
         } catch (SQLException e) {
-            System.err.println("Error finding all orders: " + e.getMessage());
+            System.err.println("Error loading orders: " + e.getMessage());
         } finally {
             DbUtil.closeQuietly(conn);
         }
         return orders;
     }
+
 
     @Override
     public boolean save(Order order) {
@@ -77,30 +124,38 @@ public class OrderDAOImpl implements OrderDAO {
         try {
             conn = DbUtil.getConnection();
 
-            // Check if order exists
-            PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM orders WHERE order_id = ?");
-            checkStmt.setInt(1, order.getOrderId());
-            ResultSet rs = checkStmt.executeQuery();
-            rs.next();
-            int count = rs.getInt(1);
-
-            PreparedStatement stmt;
-            if (count > 0) {
-                // Update
-                stmt = conn.prepareStatement("UPDATE orders SET supplier_id=?, status=? WHERE order_id=?");
-                stmt.setInt(1, order.getSupplier().getSupplierId());
-                stmt.setString(2, order.getStatus());
-                stmt.setInt(3, order.getOrderId());
-            } else {
-                // Insert
-                stmt = conn.prepareStatement("INSERT INTO orders (supplier_id, order_date, status) VALUES (?, ?, ?)");
-                stmt.setInt(1, order.getSupplier().getSupplierId());
-                stmt.setDate(2, new java.sql.Date(order.getOrderDate().getTime()));
-                stmt.setString(3, order.getStatus());
-            }
+            // Insert into orders table
+            PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO orders (supplier_id, order_date, status) VALUES (?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
+            stmt.setInt(1, order.getSupplier().getSupplierId());
+            stmt.setDate(2, new java.sql.Date(order.getOrderDate().getTime()));
+            stmt.setString(3, order.getStatus());
 
             int result = stmt.executeUpdate();
-            return result > 0;
+            if (result == 0) {
+                return false;
+            }
+
+            // Get generated order_id
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int orderId = generatedKeys.getInt(1);
+
+                // Save order items
+                for (InventoryItem item : order.getOrderedItems()) {
+                    PreparedStatement itemStmt = conn.prepareStatement(
+                            "INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?)"
+                    );
+                    itemStmt.setInt(1, orderId);
+                    itemStmt.setInt(2, item.getProduct().getId());
+                    itemStmt.setInt(3, item.getCurrentStock());
+                    itemStmt.executeUpdate();
+                }
+            }
+
+            return true;
         } catch (SQLException e) {
             System.err.println("Error saving order: " + e.getMessage());
             return false;
@@ -108,6 +163,7 @@ public class OrderDAOImpl implements OrderDAO {
             DbUtil.closeQuietly(conn);
         }
     }
+
 
     @Override
     public boolean delete(int orderId) {

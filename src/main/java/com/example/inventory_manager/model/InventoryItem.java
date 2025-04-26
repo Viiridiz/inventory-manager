@@ -22,6 +22,11 @@ public class InventoryItem implements StockTrackable {
         return quantity;
     }
 
+    public void setCurrentStock(int currentStock) {
+        this.quantity = currentStock;
+    }
+
+
     public Product getProduct() { return product; }
     public String getLocation() { return location; }
 

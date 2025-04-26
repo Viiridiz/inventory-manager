@@ -25,6 +25,11 @@ public class Order {
         orderedItems.add(item);
     }
 
+    public List<InventoryItem> getOrderedItems() {
+        return orderedItems;
+    }
+
+
     public double calculateTotalPrice() {
         double total = 0;
         for (InventoryItem item : orderedItems) {
@@ -41,6 +46,10 @@ public class Order {
         return status;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 
     public int getOrderId() {
         return orderId;
@@ -52,6 +61,10 @@ public class Order {
 
     public Date getOrderDate() {
         return orderDate;
+    }
+
+    public void setOrderDate(Date orderDate) {
+        this.orderDate = orderDate;
     }
 
     // ===== END GETTERS =====

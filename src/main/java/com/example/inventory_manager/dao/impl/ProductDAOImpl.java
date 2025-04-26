@@ -35,6 +35,24 @@ public class ProductDAOImpl implements ProductDAO {
         }
     }
 
+
+    public boolean deleteById(int id) {
+        Connection conn = null;
+        try {
+            conn = DbUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM products WHERE id = ?");
+            stmt.setInt(1, id);
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting product: " + e.getMessage());
+            return false;
+        } finally {
+            DbUtil.closeQuietly(conn);
+        }
+    }
+
+
     @Override
     public List<Product> findAll() {
         List<Product> products = new ArrayList<>();

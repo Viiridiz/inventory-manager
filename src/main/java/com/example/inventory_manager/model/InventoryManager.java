@@ -22,6 +22,7 @@ public class InventoryManager {
         inventoryItems.add(new InventoryItem(product, 0, "Unknown")); // start with 0 stock
     }
 
+
     public List<Product> getProducts() {
         return products;
     }

@@ -1,6 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<c:if test="${not empty sessionScope.flashMessage}">
+  <div style="background-color:#d4edda; color:#155724; padding:10px; border-radius:5px; margin-bottom:15px;">
+      ${sessionScope.flashMessage}
+  </div>
+  <c:remove var="flashMessage" scope="session"/>
+</c:if>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -82,51 +90,24 @@
   </style>
 </head>
 <body>
+<div style="background: #f8f9fa; padding: 1rem; margin-bottom: 2rem; border-radius: 8px;">
+  <a href="${pageContext.request.contextPath}/inventory" style="margin-right: 1rem; text-decoration: none; font-weight: bold; color: #333;">📦 Inventory</a>
+  <a href="${pageContext.request.contextPath}/order" style="margin-right: 1rem; text-decoration: none; font-weight: bold; color: #333;">🧾 Orders</a>
+</div>
 
-<h1>📦 Inventory Management System</h1>
+
+<h1>Inventory Management System</h1>
 
 <div class="card">
   <h2>System Information</h2>
-  <p>Total Products: ${inventoryManager.products.size()}</p>
-  <p>Total Suppliers: ${inventoryManager.suppliers.size()}</p>
+  <p>Total Products: ${products.size()}</p>
+  <p>Total Suppliers: ${suppliers.size()}</p>
 </div>
-
-<!-- List Products -->
-<h2>Products Available 🛒</h2>
-<c:choose>
-  <c:when test="${empty inventoryManager.products}">
-    <p>No products added yet.</p>
-  </c:when>
-  <c:otherwise>
-    <table>
-      <thead>
-      <tr>
-        <th>Product ID</th>
-        <th>Name</th>
-        <th>SKU</th>
-        <th>Category</th>
-        <th>Price</th>
-      </tr>
-      </thead>
-      <tbody>
-      <c:forEach var="product" items="${inventoryManager.products}">
-        <tr>
-          <td>${product.id}</td>
-          <td>${product.name}</td>
-          <td>${product.sku}</td>
-          <td>${product.category}</td>
-          <td>$${product.price}</td>
-        </tr>
-      </c:forEach>
-      </tbody>
-    </table>
-  </c:otherwise>
-</c:choose>
 
 <!-- List Suppliers -->
 <h2>Suppliers 📦</h2>
 <c:choose>
-  <c:when test="${empty inventoryManager.suppliers}">
+  <c:when test="${empty suppliers}">
     <p>No suppliers registered yet.</p>
   </c:when>
   <c:otherwise>
@@ -140,12 +121,72 @@
       </tr>
       </thead>
       <tbody>
-      <c:forEach var="supplier" items="${inventoryManager.suppliers}">
+      <c:forEach var="supplier" items="${suppliers}">
         <tr>
           <td>${supplier.supplierId}</td>
           <td>${supplier.name}</td>
           <td>${supplier.contactEmail}</td>
           <td>${supplier.phone}</td>
+
+          <td>
+            <form action="${pageContext.request.contextPath}/inventory" method="post" style="display:inline;">
+              <input type="hidden" name="action" value="deleteSupplier">
+              <input type="hidden" name="supplierId" value="${supplier.supplierId}">
+              <button type="submit" style="background:#dc3545; border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">Delete</button>
+            </form>
+          </td>
+
+        </tr>
+      </c:forEach>
+      </tbody>
+    </table>
+  </c:otherwise>
+</c:choose>
+
+<!-- List Products -->
+<h2>Products Available 🛒</h2>
+<c:choose>
+  <c:when test="${empty products}">
+    <p>No products added yet.</p>
+  </c:when>
+  <c:otherwise>
+    <table>
+      <thead>
+      <tr>
+        <th>Product ID</th>
+        <th>Quantity</th>
+        <th>Name</th>
+        <th>SKU</th>
+        <th>Category</th>
+        <th>Price</th>
+      </tr>
+      </thead>
+      <tbody>
+      <c:forEach var="product" items="${products}">
+        <tr>
+          <td>${product.id}</td>
+
+          <td>
+            <c:forEach var="item" items="${inventoryItems}">
+              <c:if test="${item.product.id == product.id}">
+                ${item.currentStock}
+              </c:if>
+            </c:forEach>
+          </td>
+
+          <td>${product.name}</td>
+          <td>${product.sku}</td>
+          <td>${product.category}</td>
+          <td>$${product.price}</td>
+
+          <td>
+            <form action="${pageContext.request.contextPath}/inventory" method="post" style="display:inline;">
+              <input type="hidden" name="action" value="deleteProduct">
+              <input type="hidden" name="productId" value="${product.id}">
+              <button type="submit" style="background:#dc3545; border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">Delete</button>
+            </form>
+          </td>
+
         </tr>
       </c:forEach>
       </tbody>

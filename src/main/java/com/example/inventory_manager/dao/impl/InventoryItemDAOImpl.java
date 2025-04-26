@@ -37,6 +37,22 @@ public class InventoryItemDAOImpl implements InventoryItemDAO {
         }
     }
 
+    public boolean deleteByProductId(int productId) {
+        Connection conn = null;
+        try {
+            conn = DbUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM inventory_items WHERE product_id = ?");
+            stmt.setInt(1, productId);
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting inventory item: " + e.getMessage());
+            return false;
+        } finally {
+            DbUtil.closeQuietly(conn);
+        }
+    }
+
     @Override
     public InventoryItem findByProductId(int productId) {
         Connection conn = null;
