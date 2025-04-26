@@ -9,7 +9,18 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation of InventoryItemDAO for managing inventory item records in the database.
+ */
+
 public class InventoryItemDAOImpl implements InventoryItemDAO {
+
+    /**
+     * Finds an inventory item by its inventory ID.
+     *
+     * @param inventoryId the ID of the inventory item
+     * @return the found InventoryItem, or null if not found
+     */
 
     @Override
     public InventoryItem findById(int inventoryId) {
@@ -37,6 +48,13 @@ public class InventoryItemDAOImpl implements InventoryItemDAO {
         }
     }
 
+    /**
+     * Deletes an inventory item based on the associated product ID.
+     *
+     * @param productId the ID of the product linked to the inventory item
+     * @return true if deletion was successful, false otherwise
+     */
+
     public boolean deleteByProductId(int productId) {
         Connection conn = null;
         try {
@@ -52,6 +70,13 @@ public class InventoryItemDAOImpl implements InventoryItemDAO {
             DbUtil.closeQuietly(conn);
         }
     }
+
+    /**
+     * Finds an inventory item based on the product ID.
+     *
+     * @param productId the product ID
+     * @return the found InventoryItem, or null if not found
+     */
 
     @Override
     public InventoryItem findByProductId(int productId) {
@@ -77,6 +102,12 @@ public class InventoryItemDAOImpl implements InventoryItemDAO {
             DbUtil.closeQuietly(conn);
         }
     }
+
+    /**
+     * Retrieves all inventory items from the database.
+     *
+     * @return a list of all InventoryItems
+     */
 
     @Override
     public List<InventoryItem> findAll() {
@@ -124,6 +155,13 @@ public class InventoryItemDAOImpl implements InventoryItemDAO {
         return items;
     }
 
+    /**
+     * Saves an inventory item to the database.
+     * Updates the record if it exists, or inserts a new record if it does not.
+     *
+     * @param inventoryItem the inventory item to save
+     * @return true if the operation was successful, false otherwise
+     */
 
     @Override
     public boolean save(InventoryItem inventoryItem) {
@@ -162,6 +200,13 @@ public class InventoryItemDAOImpl implements InventoryItemDAO {
             DbUtil.closeQuietly(conn);
         }
     }
+
+    /**
+     * Deletes an inventory item based on its inventory ID.
+     *
+     * @param inventoryId the ID of the inventory item to delete
+     * @return true if deletion was successful, false otherwise
+     */
 
     @Override
     public boolean delete(int inventoryId) {

@@ -10,10 +10,22 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation for handling Order-related database operations.
+ */
+
 public class OrderDAOImpl {
 
     private SupplierDAOImpl supplierDAO = new SupplierDAOImpl();
     private ProductDAOImpl productDAO = new ProductDAOImpl();
+
+
+    /**
+     * Saves a new order and its ordered items into the database.
+     *
+     * @param order the Order to save
+     * @return true if the order was successfully saved, false otherwise
+     */
 
     public boolean save(Order order) {
         Connection conn = null;
@@ -59,6 +71,12 @@ public class OrderDAOImpl {
         }
     }
 
+    /**
+     * Retrieves all orders from the database, including their ordered items.
+     *
+     * @return a list of all Orders
+     */
+
     public List<Order> findAll() {
         List<Order> orders = new ArrayList<>();
         Connection conn = null;
@@ -96,6 +114,13 @@ public class OrderDAOImpl {
         return orders;
     }
 
+    /**
+     * Finds a specific order by its ID.
+     *
+     * @param orderId the ID of the order to find
+     * @return the found Order, or null if not found
+     */
+
     public Order findById(int orderId) {
         Connection conn = null;
         try {
@@ -130,6 +155,13 @@ public class OrderDAOImpl {
         return null;
     }
 
+    /**
+     * Updates the status of an existing order.
+     *
+     * @param order the Order object with updated information
+     * @return true if the update was successful, false otherwise
+     */
+
     public boolean update(Order order) {
         Connection conn = null;
         try {
@@ -150,6 +182,13 @@ public class OrderDAOImpl {
             DbUtil.closeQuietly(conn);
         }
     }
+
+    /**
+     * Loads the ordered items associated with a specific order ID.
+     *
+     * @param orderId the ID of the order
+     * @return a list of InventoryItems for the order
+     */
 
     private List<InventoryItem> loadOrderItems(int orderId) {
         List<InventoryItem> items = new ArrayList<>();

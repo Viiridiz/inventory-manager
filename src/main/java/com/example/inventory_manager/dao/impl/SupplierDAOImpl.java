@@ -8,7 +8,18 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation for handling Supplier-related database operations.
+ */
+
 public class SupplierDAOImpl implements SupplierDAO {
+
+    /**
+     * Finds a supplier in the database by its ID.
+     *
+     * @param supplierId the ID of the supplier
+     * @return the matching Supplier or null if not found
+     */
 
     @Override
     public Supplier findById(int supplierId) {
@@ -34,6 +45,13 @@ public class SupplierDAOImpl implements SupplierDAO {
         }
     }
 
+    /**
+     * Deletes a supplier from the database by its ID.
+     *
+     * @param supplierId the ID of the supplier to delete
+     * @return true if the deletion was successful, false otherwise
+     */
+
     public boolean deleteById(int supplierId) {
         Connection conn = null;
         try {
@@ -49,6 +67,12 @@ public class SupplierDAOImpl implements SupplierDAO {
             DbUtil.closeQuietly(conn);
         }
     }
+
+    /**
+     * Retrieves all suppliers from the database.
+     *
+     * @return a list of all suppliers
+     */
 
     @Override
     public List<Supplier> findAll() {
@@ -74,6 +98,13 @@ public class SupplierDAOImpl implements SupplierDAO {
         }
         return suppliers;
     }
+
+    /**
+     * Saves a new supplier or updates an existing supplier in the database.
+     *
+     * @param supplier the Supplier to save or update
+     * @return true if the save or update was successful, false otherwise
+     */
 
     @Override
     public boolean save(Supplier supplier) {
@@ -113,6 +144,13 @@ public class SupplierDAOImpl implements SupplierDAO {
             DbUtil.closeQuietly(conn);
         }
     }
+
+    /**
+     * Deletes a supplier from the database by its ID.
+     *
+     * @param supplierId the ID of the supplier
+     * @return true if deletion was successful, false otherwise
+     */
 
     @Override
     public boolean delete(int supplierId) {

@@ -18,6 +18,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Servlet controller for managing orders.
+ * Handles placing new orders, marking orders as completed, and updating inventory stock.
+ */
+
 @WebServlet("/order")
 public class OrderServlet extends HttpServlet {
 
@@ -26,6 +31,10 @@ public class OrderServlet extends HttpServlet {
     private ProductDAOImpl productDAO;
     private InventoryItemDAOImpl inventoryItemDAO;
 
+    /**
+     * Initializes DAO objects for order, supplier, product, and inventory management.
+     */
+
     @Override
     public void init() {
         orderDAO = new OrderDAOImpl();
@@ -33,6 +42,11 @@ public class OrderServlet extends HttpServlet {
         productDAO = new ProductDAOImpl();
         inventoryItemDAO = new InventoryItemDAOImpl();
     }
+
+    /**
+     * Handles GET requests by loading all orders, suppliers, and products.
+     * Forwards the data to orders.jsp.
+     */
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -50,6 +64,10 @@ public class OrderServlet extends HttpServlet {
         request.getRequestDispatcher("/orders.jsp").forward(request, response);
     }
 
+    /**
+     * Handles POST requests to place a new order or complete an existing one.
+     */
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -62,6 +80,14 @@ public class OrderServlet extends HttpServlet {
             placeOrder(request, response);
         }
     }
+
+    /**
+     * Places a new order based on the supplier ID, product SKU, and quantity provided by the user.
+     *
+     * @param request  HTTP request
+     * @param response HTTP response
+     * @throws IOException if an error occurs during redirection
+     */
 
     private void placeOrder(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -103,6 +129,14 @@ public class OrderServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/order");
         }
     }
+
+    /**
+     * Marks an order as completed, updates its status, and increases inventory stock based on ordered items.
+     *
+     * @param request  HTTP request
+     * @param response HTTP response
+     * @throws IOException if an error occurs during redirection
+     */
 
     private void completeOrder(HttpServletRequest request, HttpServletResponse response)
             throws IOException {

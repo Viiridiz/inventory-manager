@@ -8,7 +8,18 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation for handling Product-related database operations.
+ */
+
 public class ProductDAOImpl implements ProductDAO {
+
+    /**
+     * Finds a product in the database by its SKU.
+     *
+     * @param sku the SKU of the product
+     * @return the matching Product or null if not found
+     */
 
     @Override
     public Product findBySku(String sku) {
@@ -35,6 +46,12 @@ public class ProductDAOImpl implements ProductDAO {
         }
     }
 
+    /**
+     * Deletes a product from the database using its internal ID.
+     *
+     * @param id the product ID
+     * @return true if deletion was successful, false otherwise
+     */
 
     public boolean deleteById(int id) {
         Connection conn = null;
@@ -52,6 +69,11 @@ public class ProductDAOImpl implements ProductDAO {
         }
     }
 
+    /**
+     * Retrieves all products from the database.
+     *
+     * @return a list of all products
+     */
 
     @Override
     public List<Product> findAll() {
@@ -79,6 +101,13 @@ public class ProductDAOImpl implements ProductDAO {
         }
         return products;
     }
+
+    /**
+     * Saves a new product or updates an existing product in the database.
+     *
+     * @param product the Product to save or update
+     * @return true if the save or update was successful, false otherwise
+     */
 
     @Override
     public boolean save(Product product) {
@@ -121,6 +150,13 @@ public class ProductDAOImpl implements ProductDAO {
             DbUtil.closeQuietly(conn);
         }
     }
+
+    /**
+     * Deletes a product from the database using its SKU.
+     *
+     * @param sku the SKU of the product
+     * @return true if deletion was successful, false otherwise
+     */
 
     @Override
     public boolean delete(String sku) {

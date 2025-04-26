@@ -18,12 +18,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Servlet controller for managing the inventory system.
+ * Handles product management, supplier management, stock updates, and report generation.
+ */
+
 @WebServlet("/inventory")
 public class InventoryServlet extends HttpServlet {
 
     private ProductDAOImpl productDAO;
     private SupplierDAOImpl supplierDAO;
     private InventoryItemDAOImpl inventoryItemDAO;
+
+    /**
+     * Initializes database schema and inserts sample data if necessary.
+     */
 
     @Override
     public void init() throws ServletException {
@@ -56,6 +65,10 @@ public class InventoryServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles GET requests by loading products, suppliers, and inventory items from the database.
+     * Forwards the data to the inventory.jsp page.
+     */
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -76,6 +89,9 @@ public class InventoryServlet extends HttpServlet {
         request.getRequestDispatcher("/inventory.jsp").forward(request, response);
     }
 
+    /**
+     * Handles POST requests for adding products, suppliers, updating stock, deleting items, and generating reports.
+     */
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -107,6 +123,13 @@ public class InventoryServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/inventory");
     }
 
+    /**
+     * Generates and downloads the inventory report as a text file.
+     *
+     * @param request  HTTP request
+     * @param response HTTP response
+     * @throws IOException if an I/O error occurs
+     */
 
     private void generateReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<InventoryItem> inventoryItems = inventoryItemDAO.findAll();
@@ -118,7 +141,11 @@ public class InventoryServlet extends HttpServlet {
         response.getWriter().write(reportText);
     }
 
-
+    /**
+     * Deletes a supplier by supplier ID.
+     *
+     * @param request HTTP request
+     */
 
     private void deleteSupplier(HttpServletRequest request) {
         String supplierIdStr = request.getParameter("supplierId");
@@ -137,6 +164,12 @@ public class InventoryServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Deletes a product by product ID.
+     * Also deletes the associated inventory item.
+     *
+     * @param request HTTP request
+     */
 
     private void deleteProduct(HttpServletRequest request) {
         String productIdStr = request.getParameter("productId");
@@ -161,6 +194,12 @@ public class InventoryServlet extends HttpServlet {
             }
         }
     }
+
+    /**
+     * Adds a new product based on form data.
+     *
+     * @param request HTTP request
+     */
 
     private void addProduct(HttpServletRequest request) {
         String name = request.getParameter("productName");
@@ -189,6 +228,11 @@ public class InventoryServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Adds a new supplier based on form data.
+     *
+     * @param request HTTP request
+     */
 
     private void addSupplier(HttpServletRequest request) {
         String name = request.getParameter("supplierName");
@@ -200,6 +244,12 @@ public class InventoryServlet extends HttpServlet {
             supplierDAO.save(supplier);
         }
     }
+
+    /**
+     * Updates stock quantity for a given product SKU.
+     *
+     * @param request HTTP request
+     */
 
     private void updateStock(HttpServletRequest request) {
         String sku = request.getParameter("productSku");
