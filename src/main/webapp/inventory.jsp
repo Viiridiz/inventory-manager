@@ -102,6 +102,10 @@
   <h2>System Information</h2>
   <p>Total Products: ${products.size()}</p>
   <p>Total Suppliers: ${suppliers.size()}</p>
+  <form action="${pageContext.request.contextPath}/inventory" method="post" style="margin-top: 2rem;">
+    <input type="hidden" name="action" value="generateReport">
+    <button type="submit">📄 Generate Inventory Report</button>
+  </form>
 </div>
 
 <!-- List Suppliers -->
@@ -279,6 +283,12 @@
     </form>
   </div>
 </div>
+
+<c:if test="${not empty sessionScope.inventoryReport}">
+  <h2>Generated Inventory Report 📄</h2>
+  <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">${sessionScope.inventoryReport}</pre>
+</c:if>
+
 
 </body>
 </html>

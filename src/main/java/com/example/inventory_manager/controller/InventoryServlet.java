@@ -4,6 +4,7 @@ import com.example.inventory_manager.dao.impl.ProductDAOImpl;
 import com.example.inventory_manager.dao.impl.SupplierDAOImpl;
 import com.example.inventory_manager.dao.impl.InventoryItemDAOImpl;
 import com.example.inventory_manager.db.SchemaInitializer;
+import com.example.inventory_manager.model.InventoryReport;
 import com.example.inventory_manager.model.Product;
 import com.example.inventory_manager.model.Supplier;
 import com.example.inventory_manager.model.InventoryItem;
@@ -94,10 +95,25 @@ public class InventoryServlet extends HttpServlet {
         else if ("deleteSupplier".equals(action)) {
             deleteSupplier(request);
         }
-
+        else if ("generateReport".equals(action)) {
+            generateReport(request, response);
+            return; // Important to STOP after generating report
+        }
 
         response.sendRedirect(request.getContextPath() + "/inventory");
     }
+
+    private void generateReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<InventoryItem> inventoryItems = inventoryItemDAO.findAll();
+        InventoryReport report = new InventoryReport(inventoryItems);
+        String reportText = report.generateReport();
+
+        response.setContentType("text/plain");
+        response.setHeader("Content-Disposition", "attachment;filename=inventory_report.txt");
+        response.getWriter().write(reportText);
+    }
+
+
 
     private void deleteSupplier(HttpServletRequest request) {
         String supplierIdStr = request.getParameter("supplierId");

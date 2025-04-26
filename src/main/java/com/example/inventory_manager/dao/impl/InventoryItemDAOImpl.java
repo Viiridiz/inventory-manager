@@ -80,28 +80,50 @@ public class InventoryItemDAOImpl implements InventoryItemDAO {
 
     @Override
     public List<InventoryItem> findAll() {
-        List<InventoryItem> inventoryItems = new ArrayList<>();
+        List<InventoryItem> items = new ArrayList<>();
         Connection conn = null;
+
         try {
             conn = DbUtil.getConnection();
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM inventory_items");
+            String sql = """
+                SELECT ii.inventory_id, ii.quantity, ii.location,
+                       p.id AS product_id, p.name, p.sku, p.category, p.price, p.description
+                FROM inventory_items ii
+                JOIN products p ON ii.product_id = p.id
+                """;
+
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                int productId = rs.getInt("product_id");
-                int quantity = rs.getInt("quantity");
-                String location = rs.getString("location");
+                // Create Product
+                Product product = new Product(
+                        rs.getInt("product_id"),
+                        rs.getString("name"),
+                        rs.getString("sku"),
+                        rs.getString("category"),
+                        rs.getDouble("price"),
+                        rs.getString("description")
+                );
 
-                Product dummyProduct = new Product(productId, "", "", "", 0.0, "");
-                inventoryItems.add(new InventoryItem(dummyProduct, quantity, location));
+                // Create InventoryItem
+                InventoryItem item = new InventoryItem(
+                        product,
+                        rs.getInt("quantity"),
+                        rs.getString("location")
+                );
+
+                items.add(item);
             }
+
         } catch (SQLException e) {
             System.err.println("Error finding all inventory items: " + e.getMessage());
         } finally {
             DbUtil.closeQuietly(conn);
         }
-        return inventoryItems;
+        return items;
     }
+
 
     @Override
     public boolean save(InventoryItem inventoryItem) {
