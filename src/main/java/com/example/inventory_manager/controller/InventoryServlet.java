@@ -207,26 +207,31 @@ public class InventoryServlet extends HttpServlet {
         String category = request.getParameter("productCategory");
         String priceStr = request.getParameter("productPrice");
         String description = request.getParameter("productDescription");
+        String quantityStr = request.getParameter("productQuantity");
 
-        if (name != null && sku != null && priceStr != null) {
+        if (name != null && sku != null && priceStr != null && quantityStr != null) {
             try {
                 double price = Double.parseDouble(priceStr);
+                int quantity = Integer.parseInt(quantityStr);
+
                 Product product = new Product(0, name, sku, category, price, description);
+
                 boolean saved = productDAO.save(product);
 
                 if (saved) {
-                    // Fetch the newly saved product (by SKU)
                     Product savedProduct = productDAO.findBySku(sku);
                     if (savedProduct != null) {
-                        InventoryItem item = new InventoryItem(savedProduct, 0, "Default Location");
+                        InventoryItem item = new InventoryItem(savedProduct, quantity, "Default Location");
+
                         inventoryItemDAO.save(item);
                     }
                 }
             } catch (NumberFormatException e) {
-                System.err.println("Invalid price input: " + e.getMessage());
+                System.err.println("Invalid price or quantity input: " + e.getMessage());
             }
         }
     }
+
 
     /**
      * Adds a new supplier based on form data.

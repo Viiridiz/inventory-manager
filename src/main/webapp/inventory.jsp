@@ -256,6 +256,11 @@
       </div>
 
       <div class="form-group">
+        <label for="productQuantity">Quantity:</label>
+        <input type="number" id="productQuantity" name="productQuantity" required min="1">
+      </div>
+
+      <div class="form-group">
         <label for="productDescription">Description:</label>
         <input type="text" id="productDescription" name="productDescription">
       </div>
